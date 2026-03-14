@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anime Crypto Gen — AI Art Prompt Generator</title>
+  <meta name="description" content="Free AI agent for generating anime crypto art prompts. No login required." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --neon: #00f5ff; --neon2: #ff00aa; --gold: #ffd700;
+      --bg: #05050f; --card: #0c0c20; --card2: #0f0f28;
+      --border: rgba(0,245,255,0.12); --text: #dde4ff;
+      --muted: rgba(180,200,255,0.5);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+    .bg-stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-stars::before, .bg-stars::after {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(0,245,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, rgba(255,0,170,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 20%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 75%, rgba(0,245,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 40%, rgba(255,215,0,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 95%, rgba(0,245,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 50%, rgba(255,0,170,0.2) 0%, transparent 100%);
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+    .bg-stars::after { background-image: radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 40% 10%, rgba(0,245,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 60% 80%, rgba(255,0,170,0.2) 0%, transparent 100%), radial-gradient(2px 2px at 80% 25%, rgba(255,215,0,0.2) 0%, transparent 100%), radial-gradient(1px 1px at 25% 70%, rgba(0,245,255,0.25) 0%, transparent 100%); animation-delay: 2s; }
+    @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+    .glow-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+    .glow-orb.one { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,245,255,0.06) 0%, transparent 70%); top: -100px; left: -100px; }
+    .glow-orb.two { width: 350px; height: 350px; background: radial-gradient(circle, rgba(255,0,170,0.05) 0%, transparent 70%); bottom: -80px; right: -80px; }
+
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    .wrapper { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 0 16px 60px; }
+
+    .header { text-align: center; padding: 52px 20px 36px; }
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25); border-radius: 30px; padding: 6px 16px; font-size: 0.68rem; color: var(--gold); font-family: 'Orbitron', monospace; letter-spacing: 2px; margin-bottom: 20px; animation: fadeInDown 0.6s ease both; }
+    .logo { font-family: 'Orbitron', monospace; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; letter-spacing: 3px; color: #fff; text-shadow: 0 0 40px rgba(0,245,255,0.4); margin-bottom: 10px; animation: fadeInDown 0.7s ease 0.1s both; }
+    .logo .c1 { color: var(--neon); }
+    .logo .c2 { color: var(--neon2); }
+    .tagline { font-size: 0.85rem; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; font-weight: 300; animation: fadeInDown 0.7s ease 0.2s both; }
+
+    .stats-row { display: flex; justify-content: center; margin: 28px 0 32px; animation: fadeInUp 0.7s ease 0.3s both; }
+    .stat-item { text-align: center; padding: 12px 28px; border-right: 1px solid rgba(0,245,255,0.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: 'Orbitron', monospace; font-size: 1.3rem; font-weight: 700; color: var(--neon); display: block; }
+    .stat-lbl { font-size: 0.62rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; display: block; }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; animation: fadeInUp 0.7s ease 0.4s both; }
+    @media (max-width: 560px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; transition: border-color 0.25s; }
+    .card:hover { border-color: rgba(0,245,255,0.28); }
+    .card.full { grid-column: 1 / -1; }
+    .section-title { font-family: 'Orbitron', monospace; font-size: 0.62rem; letter-spacing: 2.5px; color: var(--neon); text-transform: uppercase; margin-bottom: 12px; }
+
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip { background: rgba(0,245,255,0.05); border: 1px solid rgba(0,245,255,0.18); color: rgba(180,210,255,0.8); font-size: 0.73rem; padding: 6px 12px; border-radius: 24px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; user-select: none; }
+    .chip:hover { background: rgba(0,245,255,0.12); border-color: var(--neon); color: var(--neon); }
+    .chip.active { background: rgba(0,245,255,0.18); border-color: var(--neon); color: var(--neon); box-shadow: 0 0 10px rgba(0,245,255,0.25); }
+    .chip.coin { background: rgba(255,215,0,0.05); border-color: rgba(255,215,0,0.2); color: rgba(255,220,100,0.8); }
+    .chip.coin:hover, .chip.coin.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 10px rgba(255,215,0,0.25); }
+    .chip.mood { background: rgba(255,0,170,0.05); border-color: rgba(255,0,170,0.2); color: rgba(255,150,220,0.8); }
+    .chip.mood:hover, .chip.mood.active { background: rgba(255,0,170,0.14); border-color: var(--neon2); color: var(--neon2); box-shadow: 0 0 10px rgba(255,0,170,0.25); }
+
+    textarea { width: 100%; background: rgba(5,5,20,0.8); border: 1px solid rgba(0,245,255,0.18); border-radius: 8px; color: #c8d8ff; font-size: 0.82rem; font-family: 'Inter', sans-serif; padding: 10px 14px; outline: none; line-height: 1.6; transition: border-color 0.2s; resize: none; }
+    textarea:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(0,245,255,0.08); }
+    textarea::placeholder { color: rgba(100,120,200,0.35); }
+
+    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-row label { font-size: 0.72rem; color: rgba(160,190,255,0.7); width: 100px; flex-shrink: 0; }
+    input[type=range] { flex: 1; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(0,245,255,0.15); border-radius: 2px; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--neon); box-shadow: 0 0 8px rgba(0,245,255,0.5); cursor: pointer; }
+    input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--neon); cursor: pointer; border: none; }
+    .slider-val { font-size: 0.72rem; color: var(--neon); font-family: 'Orbitron', monospace; width: 22px; text-align: right; }
+
+    .gen-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, rgba(0,245,255,0.1) 0%, rgba(255,0,170,0.08) 100%); border: 1px solid rgba(0,245,255,0.35); border-radius: 12px; color: #fff; font-family: 'Orbitron', monospace; font-size: 0.85rem; font-weight: 700; letter-spacing: 2.5px; cursor: pointer; text-transform: uppercase; transition: all 0.25s; margin-top: 4px; overflow: hidden; position: relative; }
+    .gen-btn:hover { background: linear-gradient(135deg, rgba(0,245,255,0.2) 0%, rgba(255,0,170,0.14) 100%); border-color: var(--neon); box-shadow: 0 0 28px rgba(0,245,255,0.2); transform: translateY(-1px); }
+    .gen-btn:active { transform: translateY(0); }
+    .gen-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .result-section { display: none; margin-top: 20px; animation: fadeInUp 0.5s ease; }
+    .result-section.show { display: block; }
+    .result-card { background: var(--card2); border: 1px solid rgba(0,245,255,0.18); border-radius: 16px; padding: 20px; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .result-title { font-family: 'Orbitron', monospace; font-size: 0.68rem; letter-spacing: 2px; color: var(--neon); text-transform: uppercase; }
+    .result-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rtab { font-size: 0.7rem; padding: 5px 14px; border-radius: 24px; cursor: pointer; border: 1px solid rgba(0,245,255,0.15); color: rgba(150,180,255,0.55); background: transparent; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .rtab.active { border-color: var(--neon); color: var(--neon); background: rgba(0,245,255,0.08); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .prompt-text { font-size: 0.83rem; line-height: 1.75; color: #c8d8ff; white-space: pre-wrap; word-break: break-word; min-height: 80px; }
+    .neg-text { font-size: 0.8rem; line-height: 1.7; color: rgba(255,130,130,0.85); white-space: pre-wrap; word-break: break-word; }
+    .tips-text { font-size: 0.82rem; line-height: 1.75; color: rgba(160,240,180,0.85); white-space: pre-wrap; }
+    .action-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .copy-btn { font-size: 0.72rem; padding: 7px 18px; border-radius: 8px; border: 1px solid rgba(0,245,255,0.22); background: transparent; color: rgba(0,245,255,0.7); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .copy-btn:hover { background: rgba(0,245,255,0.1); border-color: var(--neon); color: var(--neon); }
+    .copy-btn.success { border-color: rgba(100,255,160,0.5); color: rgba(100,255,160,0.9); }
+
+    .dots { display: inline-flex; gap: 5px; align-items: center; vertical-align: middle; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--neon); animation: blink 1.2s ease-in-out infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%, 100% { opacity: 0.2; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1); } }
+
+    .history-section { margin-top: 32px; }
+    .history-title { font-family: 'Orbitron', monospace; font-size: 0.65rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item { background: rgba(10,10,28,0.6); border: 1px solid rgba(0,245,255,0.08); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; cursor: pointer; transition: border-color 0.2s; }
+    .history-item:hover { border-color: rgba(0,245,255,0.22); }
+    .history-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .htag { font-size: 0.62rem; padding: 3px 8px; border-radius: 12px; background: rgba(0,245,255,0.07); color: rgba(0,245,255,0.6); border: 1px solid rgba(0,245,255,0.12); }
+    .history-time { font-size: 0.62rem; color: rgba(150,170,255,0.35); white-space: nowrap; flex-shrink: 0; }
+
+    footer { text-align: center; padding: 40px 20px 20px; font-size: 0.7rem; color: rgba(150,170,255,0.3); letter-spacing: 1px; position: relative; z-index: 1; }
+    footer a { color: rgba(0,245,255,0.4); text-decoration: none; }
+    footer a:hover { color: var(--neon); }
+
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,245,255,0.12); border: 1px solid rgba(0,245,255,0.35); color: var(--neon); padding: 10px 24px; border-radius: 40px; font-size: 0.78rem; font-family: 'Orbitron', monospace; letter-spacing: 1px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 1000; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="bg-stars"></div>
+<div class="glow-orb one"></div>
+<div class="glow-orb two"></div>
+
+<div class="wrapper">
+  <header class="header">
+    <div class="header-badge">&#9670; 100% FREE &nbsp;·&nbsp; NO LOGIN &nbsp;·&nbsp; OPEN TO ALL &#9670;</div>
+    <div class="logo">ANIME<span class="c1">.</span>CRYPTO<span class="c2">.</span>GEN</div>
+    <div class="tagline">AI Agent — Anime Crypto Art Prompt Generator</div>
+  </header>
+
+  <div class="stats-row">
+    <div class="stat-item"><span class="stat-num" id="gen-count">0</span><span class="stat-lbl">Generated</span></div>
+    <div class="stat-item"><span class="stat-num">FREE</span><span class="stat-lbl">Forever</span></div>
+    <div class="stat-item"><span class="stat-num">AI</span><span class="stat-lbl">Powered</span></div>
+    <div class="stat-item"><span class="stat-num">5+</span><span class="stat-lbl">AI Tools</span></div>
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <div class="section-title">&#9670; Character</div>
+      <div class="chip-grid">
+        <div class="chip active" data-group="char">Crypto Girl</div>
+        <div class="chip" data-group="char">DeFi Warrior</div>
+        <div class="chip" data-group="char">NFT Mage</div>
+        <div class="chip" data-group="char">Moon Trader</div>
+        <div class="chip" data-group="char">Blockchain Samurai</div>
+        <div class="chip" data-group="char">Hodler Idol</div>
+        <div class="chip" data-group="char">Web3 Goddess</div>
+        <div class="chip" data-group="char">Metaverse Hero</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">&#9670; Token / Coin</div>
+      <div class="chip-grid">
+        <div class="chip coin active" data-group="coin">Bitcoin</div>
+        <div class="chip coin" data-group="coin">Ethereum</div>
+        <div class="chip coin" data-group="coin">Solana</div>
+        <div class="chip coin" data-group="coin">Dogecoin</div>
+        <div class="chip coin" data-group="coin">Pepe</div>
+        <div class="chip coin" data-group="coin">BNB</div>
+        <div class="chip coin" data-group="coin">Avalanche</div>
+        <div class="chip coin" id="custom-coin" data-group="coin">+ Custom</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">&#9670; Art Style</div>
+      <div class="chip-grid">
+        <div class="chip active" data-group="style">Cyberpunk</div>
+        <div class="chip" data-group="style">Chibi</div>
+        <div class="chip" data-group="style">Shonen</div>
+        <div class="chip" data-group="style">Dark Fantasy</div>
+        <div class="chip" data-group="style">Pastel Kawaii</div>
+        <div class="chip" data-group="style">Mecha</div>
+        <div class="chip" data-group="style">Lofi Aesthetic</div>
+        <div class="chip" data-group="style">Isekai Fantasy</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">&#9670; Mood / Vibe</div>
+      <div class="chip-grid">
+        <div class="chip mood active" data-group="mood">To The Moon</div>
+        <div class="chip mood" data-group="mood">Rekt</div>
+        <div class="chip mood" data-group="mood">Diamond Hands</div>
+        <div class="chip mood" data-group="mood">Bull Run</div>
+        <div class="chip mood" data-group="mood">Bear Market</div>
+        <div class="chip mood" data-group="mood">Airdrop Hype</div>
+        <div class="chip mood" data-group="mood">Wen Lambo</div>
+        <div class="chip mood" data-group="mood">WAGMI Energy</div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="section-title">&#9670; Extra Details (Optional)</div>
+      <textarea id="extra-input" rows="2" placeholder="e.g. holding a Lamborghini, Tokyo neon background, long blue hair..."></textarea>
+    </div>
+
+    <div class="card full">
+      <div class="section-title">&#9670; AI Parameters</div>
+      <div class="slider-row">
+        <label>Creativity</label>
+        <input type="range" id="creativity" min="1" max="10" value="7" step="1" />
+        <span class="slider-val" id="creativity-val">7</span>
+      </div>
+      <div class="slider-row">
+        <label>Detail Level</label>
+        <input type="range" id="detail" min="1" max="10" value="8" step="1" />
+        <span class="slider-val" id="detail-val">8</span>
+      </div>
+      <div class="slider-row">
+        <label>Prompt Length</label>
+        <input type="range" id="plength" min="1" max="3" value="2" step="1" />
+        <span class="slider-val" id="plength-val" style="width:48px;font-size:0.65rem">Medium</span>
+      </div>
+    </div>
+
+    <div class="full">
+      <button class="gen-btn" id="gen-btn" onclick="generate()">
+        &#9654;&nbsp;&nbsp;Generate Anime Crypto Art Prompt
+      </button>
+    </div>
+  </div>
+
+  <div class="result-section" id="result-section">
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-title">&#9670; Generated Prompt</div>
+        <div class="result-tabs">
+          <button class="rtab active" onclick="switchTab('positive',this)">Positive</button>
+          <button class="rtab" onclick="switchTab('negative',this)">Negative</button>
+          <button class="rtab" onclick="switchTab('tips',this)">Tips</button>
+        </div>
+      </div>
+      <div class="tab-pane active" id="tab-positive">
+        <div class="prompt-text" id="pos-out"></div>
+        <div class="action-row">
+          <button class="copy-btn" onclick="copyEl('pos-out',this)">Copy Prompt</button>
+          <button class="copy-btn" onclick="copyAll()">Copy All</button>
+        </div>
+      </div>
+      <div class="tab-pane" id="tab-negative">
+        <div class="neg-text" id="neg-out"></div>
+        <div class="action-row">
+          <button class="copy-btn" onclick="copyEl('neg-out',this)">Copy Negative</button>
+        </div>
+      </div>
+      <div class="tab-pane" id="tab-tips">
+        <div class="tips-text" id="tips-out"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-section" id="history-section" style="display:none">
+    <div class="history-title">&#9670; Recent Generations</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Anime Crypto Gen &mdash; Free AI Art Prompt Generator &mdash; Powered by Claude AI</p>
+  <p style="margin-top:6px">Deploy free on <a href="https://vercel.com" target="_blank">Vercel</a></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let genCount = 0;
+  const history = [];
+  const plLabels = ['Short','Medium','Long'];
+  const plMap = {'1':'short (50-80 words)','2':'medium (100-150 words)','3':'very detailed (180-250 words)'};
+
+  document.querySelectorAll('.chip[data-group]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.id === 'custom-coin') {
+        const val = prompt('Enter token / coin name:');
+        if (val && val.trim()) { chip.textContent = val.trim(); chip.id = ''; } else return;
+      }
+      const group = chip.dataset.group;
+      document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  document.getElementById('creativity').addEventListener('input', e => { document.getElementById('creativity-val').textContent = e.target.value; });
+  document.getElementById('detail').addEventListener('input', e => { document.getElementById('detail-val').textContent = e.target.value; });
+  document.getElementById('plength').addEventListener('input', e => { document.getElementById('plength-val').textContent = plLabels[e.target.value - 1]; });
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function copyEl(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!'; btn.classList.add('success');
+      showToast('Copied!');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('success'); }, 2000);
+    });
+  }
+  function copyAll() {
+    const pos = document.getElementById('pos-out').textContent;
+    const neg = document.getElementById('neg-out').textContent;
+    navigator.clipboard.writeText('POSITIVE:\n' + pos + '\n\nNEGATIVE:\n' + neg).then(() => showToast('All copied!'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function getActive(group) {
+    const el = document.querySelector(`.chip[data-group="${group}"].active`);
+    return el ? el.textContent.trim() : '';
+  }
+
+  async function generate() {
+    const char = getActive('char'), coin = getActive('coin');
+    const style = getActive('style'), mood = getActive('mood');
+    const extra = document.getElementById('extra-input').value.trim();
+    const creativity = document.getElementById('creativity').value;
+    const detail = document.getElementById('detail').value;
+    const promptLen = plMap[document.getElementById('plength').value];
+
+    const btn = document.getElementById('gen-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>&nbsp; AI is generating...';
+
+    document.getElementById('result-section').classList.add('show');
+    document.getElementById('pos-out').textContent = 'Generating...';
+    document.getElementById('neg-out').textContent = '';
+    document.getElementById('tips-out').textContent = '';
+
+    const system = `You are an expert AI prompt engineer for anime crypto art. Output ONLY valid JSON, no markdown, no backticks:
+{"positive":"...","negative":"...","tips":"..."}
+- positive: vivid detailed English prompt with style, lighting, quality tags, crypto elements
+- negative: comprehensive negative prompt
+- tips: 4-5 tips on using this prompt in AI art tools
+- Creativity: ${creativity}/10, Detail: ${detail}/10, Length: ${promptLen}`;
+
+    const userMsg = `Anime crypto art prompt:
+- Character: ${char}
+- Token: ${coin}
+- Style: ${style}
+- Mood: ${mood}${extra ? '\n- Extra: ' + extra : ''}
+Make it epic and ready to use!`;
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system,
+          messages: [{ role: 'user', content: userMsg }]
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Server error ' + res.status);
+      }
+
+      const raw = (data.content || []).map(i => i.text || '').join('');
+      let parsed;
+      try {
+        parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      } catch {
+        parsed = {
+          positive: raw.length > 20 ? raw : '(Parse failed, try again)',
+          negative: 'blurry, low quality, watermark, bad anatomy, deformed, ugly, extra limbs',
+          tips: '1. Use in Midjourney with /imagine\n2. Add --ar 2:3 for portrait\n3. Add --q 2 for quality\n4. Try Stable Diffusion AnimeART model\n5. Try Leonardo AI Anime XL'
+        };
+      }
+
+      document.getElementById('pos-out').textContent = parsed.positive || '';
+      document.getElementById('neg-out').textContent = parsed.negative || '';
+      document.getElementById('tips-out').textContent = parsed.tips || '';
+      genCount++;
+      document.getElementById('gen-count').textContent = genCount;
+      addHistory(char, coin, style, mood);
+      showToast('Prompt generated!');
+
+    } catch (err) {
+      document.getElementById('pos-out').textContent = '⚠ Error: ' + err.message;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '&#9654;&nbsp;&nbsp;Generate Anime Crypto Art Prompt';
+  }
+
+  function addHistory(char, coin, style, mood) {
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    history.unshift({ char, coin, style, mood, time });
+    if (history.length > 5) history.pop();
+    const sec = document.getElementById('history-section');
+    const list = document.getElementById('history-list');
+    if (!history.length) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    list.innerHTML = history.map((h, i) => `
+      <div class="history-item" onclick="loadHistory(${i})">
+        <div class="history-tags">
+          <span class="htag">${h.char}</span>
+          <span class="htag" style="color:rgba(255,215,0,0.6)">${h.coin}</span>
+          <span class="htag" style="color:rgba(255,100,200,0.6)">${h.style}</span>
+          <span class="htag">${h.mood}</span>
+        </div>
+        <span class="history-time">${h.time}</span>
+      </div>`).join('');
+  }
+
+  function loadHistory(idx) {
+    const h = history[idx];
+    ['char','coin','style','mood'].forEach(g => {
+      document.querySelectorAll(`.chip[data-group="${g}"]`).forEach(c => {
+        c.classList.toggle('active', c.textContent.trim() === h[g]);
+      });
+    });
+    showToast('Loaded from history');
+  }
+
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate(); });
+</script>
+</body>
+</html>
